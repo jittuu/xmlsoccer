@@ -52,7 +52,7 @@ func TestGetAllLeagues(t *testing.T) {
 	defer ts.Close()
 
 	// act
-	c := DemoClient("dummy-key")
+	c := &Client{APIKey: "dummy-key"}
 	c.testURL = ts.URL
 	leagues, err := c.GetAllLeagues()
 
@@ -127,7 +127,7 @@ func testGetFixtures(t *testing.T, f func(*Client) ([]*Match, error)) {
 	defer ts.Close()
 
 	// act
-	c := DemoClient("dummy-key")
+	c := &Client{APIKey: "dummy-key"}
 	c.testURL = ts.URL
 	matches, err := f(c)
 
@@ -194,12 +194,12 @@ func TestGetAllTeamsByLeagueAndSeason(t *testing.T) {
 		<?xml version="1.0" encoding="utf-8"?>
 		<XMLSOCCER.COM>
 			<Team>
-			  <Team_Id>4</Team_Id>
-			  <Name>Fulham</Name>
-			  <Country>England</Country>
-			  <Stadium>Craven Cottage</Stadium>
-			  <HomePageURL>http://www.fulhamfc.com/</HomePageURL>
-			  <WIKILink>http://en.wikipedia.org/wiki/Fulham_F.C.</WIKILink>
+				<Team_Id>4</Team_Id>
+				<Name>Fulham</Name>
+				<Country>England</Country>
+				<Stadium>Craven Cottage</Stadium>
+				<HomePageURL>http://www.fulhamfc.com/</HomePageURL>
+				<WIKILink>http://en.wikipedia.org/wiki/Fulham_F.C.</WIKILink>
 			</Team>
 		</XMLSOCCER.COM>
 				`
@@ -208,7 +208,7 @@ func TestGetAllTeamsByLeagueAndSeason(t *testing.T) {
 	defer ts.Close()
 
 	// act
-	c := DemoClient("dummy-key")
+	c := &Client{APIKey: "dummy-key"}
 	c.testURL = ts.URL
 	teams, err := c.GetAllTeamsByLeagueAndSeason("3", "1415")
 

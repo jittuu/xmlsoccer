@@ -9,13 +9,19 @@ import (
 )
 
 var (
-	apiKeyPtr = flag.String("api", "", "provide api key to run integration tests")
+	apiKeyPtr          = flag.String("api", "", "provide api key to run integration tests")
+	startDate, endDate time.Time
 )
+
+func init() {
+	startDate, _ = time.Parse("02-01-2006", "01-08-2015")
+	endDate, _ = time.Parse("02-01-2006", "18-08-2015")
+}
 
 func TestIntegrationGetAllLeagues(t *testing.T) {
 	checkAPIKey(t)
 
-	c := DemoClient(*apiKeyPtr)
+	c := &Client{APIKey: *apiKeyPtr, BaseURL: DemoURL}
 	leagues, err := c.GetAllLeagues()
 
 	if err != nil {
@@ -28,27 +34,27 @@ func TestIntegrationGetAllLeagues(t *testing.T) {
 }
 
 func TestIntegrationGetFixturesByDateInterval(t *testing.T) {
-	testIntegrationGetFixtures(t, func(c *Client) ([]Match, error) {
-		return c.GetFixturesByDateInterval(time.Now().Add(-10*24*time.Hour), time.Now())
+	testIntegrationGetFixtures(t, func(c *Client) ([]*Match, error) {
+		return c.GetFixturesByDateInterval(startDate, endDate)
 	})
 }
 
 func TestIntegrationGetFixturesByDateIntervalAndLeague(t *testing.T) {
-	testIntegrationGetFixtures(t, func(c *Client) ([]Match, error) {
-		return c.GetFixturesByDateIntervalAndLeague(time.Now().Add(-10*24*time.Hour), time.Now(), "3")
+	testIntegrationGetFixtures(t, func(c *Client) ([]*Match, error) {
+		return c.GetFixturesByDateIntervalAndLeague(startDate, endDate, "3")
 	})
 }
 
 func TestIntegrationGetFixturesByLeagueAndSeason(t *testing.T) {
-	testIntegrationGetFixtures(t, func(c *Client) ([]Match, error) {
+	testIntegrationGetFixtures(t, func(c *Client) ([]*Match, error) {
 		return c.GetFixturesByLeagueAndSeason("3", "1415")
 	})
 }
 
-func testIntegrationGetFixtures(t *testing.T, f func(*Client) ([]Match, error)) {
+func testIntegrationGetFixtures(t *testing.T, f func(*Client) ([]*Match, error)) {
 	checkAPIKey(t)
 
-	c := DemoClient(*apiKeyPtr)
+	c := &Client{APIKey: *apiKeyPtr, BaseURL: DemoURL}
 	matches, err := f(c)
 
 	if err != nil {
@@ -63,7 +69,7 @@ func testIntegrationGetFixtures(t *testing.T, f func(*Client) ([]Match, error)) 
 func TestIntegrationGetAllTeamsByLeagueAndSeason(t *testing.T) {
 	checkAPIKey(t)
 
-	c := DemoClient(*apiKeyPtr)
+	c := &Client{APIKey: *apiKeyPtr, BaseURL: DemoURL}
 	teams, err := c.GetAllTeamsByLeagueAndSeason("3", "1415")
 
 	if err != nil {

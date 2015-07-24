@@ -11,6 +11,8 @@ import (
 
 // Client is to call webservice
 type Client struct {
+	*http.Client
+
 	// it will be zero value ("") while not in testing
 	testURL string
 
@@ -22,23 +24,11 @@ type Client struct {
 }
 
 // ErrMissingAPIKey represents error when client makes request without APIKey
-var ErrMissingAPIKey = errors.New("APIKey is requried")
-
-// DemoClient creates client which access to Demo webservice
-func DemoClient(apiKey string) *Client {
-	return &Client{
-		APIKey:  apiKey,
-		BaseURL: "http://www.xmlsoccer.com/FootballDataDemo.asmx",
-	}
-}
-
-// FullClient create Client which access to Full webservice
-func FullClient(apiKey string) *Client {
-	return &Client{
-		APIKey:  apiKey,
-		BaseURL: "http://www.xmlsoccer.com/FootballData.asmx",
-	}
-}
+var (
+	ErrMissingAPIKey = errors.New("APIKey is requried")
+	DemoURL          = "http://www.xmlsoccer.com/FootballDataDemo.asmx"
+	FullURL          = "http://www.xmlsoccer.com/FootballData.asmx"
+)
 
 // GetAllLeagues returns all published leagues
 func (c *Client) GetAllLeagues() ([]*League, error) {
@@ -121,7 +111,11 @@ func (c *Client) invokeService(serviceName string, data url.Values, v interface{
 	}
 	data.Add("ApiKey", c.APIKey)
 
-	resp, err := http.PostForm(c.postURL(serviceName), data)
+	if c.Client == nil {
+		c.Client = http.DefaultClient
+	}
+
+	resp, err := c.PostForm(c.postURL(serviceName), data)
 
 	if err != nil {
 		return err
